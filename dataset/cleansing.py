@@ -17,19 +17,42 @@ def extract_numbers(string):
     converted_numbers = [float(num) if '.' in num else int(num) for num in numbers]
     return converted_numbers
 
+def extract_data_from_page(page):
+    url = page[0]
+    title = page[1]
+    district = page[2]
+
+    estate_data = page[-1]
+    # Khỏi tạo giá trị mặc định
+    price = None
+    square = None
+    bedroom = None
+    bathroom = None
+
+    # Kiểm tra các thông tin có hợp lệ vì có thể thiếu hoặc dư thông tin
+    for data in estate_data:
+        unit = data.split(' ')[-1]
+        if unit == 'tỷ':
+            price = extract_numbers(data)[0]
+        elif unit == 'm2':
+            square = extract_numbers(data)[0]
+        elif unit == 'PN':
+            bedroom = extract_numbers(data)[0]
+        elif unit == 'WC':
+            bathroom = extract_numbers(data)[0]
+        
+        # Lấy thông tin mã tin và ngày đăng
+        post_data = page[-2]
+        post_code = extract_numbers(post_data[0])[0]
+        post_dates = extract_date_times(post_data[1])
+
+        return url, title, district, price, square, bedroom, bathroom, post_code, post_dates
+
+
 def concat_data():
     final_data = dict()
-
-    urls = []
-    titles = []
-    news_codes = []
-    post_dates = []
-    districts = []
-    prices = []
-    squares = []
-    bedrooms = []
-    bathrooms = []
-
+    urls = []; titles = []; post_codes = []; post_dates = []
+    districts = []; prices = []; squares = []; bedrooms = []; bathrooms = []
 
     dataset_path = './dataset/data'
     data_paths = []
@@ -40,63 +63,22 @@ def concat_data():
     for data_path in data_paths:
         with open(data_path, 'r', encoding='utf8') as json_file:
             pages = json.load(json_file)
+            
         for page in pages.values():
-            
-            urls.append(page[0])
-            titles.append(page[1])
-            districts.append(page[2])
+            url, title, district, price, square, bedroom, bathroom, post_code, post_date = extract_data_from_page(page)
+            urls.append(url); titles.append(title); post_codes.append(post_code); post_dates.append(post_date)
+            districts.append(district); prices.append(price); squares.append(square); bedrooms.append(bedroom); bathrooms.append(bathroom)
+                        
+    final_data['url'] = urls; final_data['title'] = titles; final_data['post_code'] = post_codes; final_data['post_date'] = post_dates
+    final_data['district'] = districts; final_data['price'] = prices; final_data['square'] = squares; final_data['bedroom'] = bedrooms; final_data['bathroom'] = bathrooms
         
-            
-
-            estate_data = page[-1]
-            # Khỏi tạo giá trị mặc định
-            price = None
-            square = None
-            bedroom = None
-            bathroom = None
-
-            # Kiểm tra các thông tin có hợp lệ vì có thể thiếu hoặc dư thông tin
-            for data in estate_data:
-                unit = data.split(' ')[-1]
-                if unit == 'tỷ':
-                    price = extract_numbers(data)[0]
-                elif unit == 'm2':
-                    square = extract_numbers(data)[0]
-                elif unit == 'PN':
-                    bedroom = extract_numbers(data)[0]
-                elif unit == 'WC':
-                    bathroom = extract_numbers(data)[0]
-                    
-            squares.append(square)
-            prices.append(price)
-            bedrooms.append(bedroom)
-            bathrooms.append(bathroom)
-
-            # Lấy thông tin mã tin và ngày đăng
-            post_data = page[-2]
-            news_codes.append(extract_numbers(post_data[0]))
-            post_dates.append(extract_date_times(post_data[1]))
-
-            final_data['url'] = urls
-            final_data['title'] = titles
-            
-            final_data['news_code'] = news_codes
-            final_data['post_date'] = post_dates
-                    
-            final_data['district'] = districts
-            
-            final_data['price'] = prices
-            final_data['square'] = squares
-            final_data['bedroom'] = bedrooms
-            final_data['bathroom'] = bathrooms
-
-        return final_data
+    return final_data
 
 def export_csv(data):
     final_csv = pd.DataFrame(data)
     final_csv.reset_index(drop=True, inplace=True)
-    final_csv.to_csv("final_data.csv")
-        
+    final_csv.to_csv("./dataset/final_data.csv")
+    return
 
 if __name__ == '__main__':
     data = concat_data()
