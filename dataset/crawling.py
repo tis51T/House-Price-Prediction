@@ -2,19 +2,6 @@ from bs4 import BeautifulSoup
 import requests, json, time
 import pandas as pd
 
-# urls = []
-# titles = []
-# districts = []
-# prices = []
-# square = []
-# bedrooms = []
-# bathrooms = []
-# ids = []
-# dates = []
-
-
-
-
 def compute_time_run(func):
     def wrapper(*args, **kwargs):
         start_time = time.time()
@@ -23,7 +10,6 @@ def compute_time_run(func):
         print(f"Time taken to run the function '{func.__name__}': {end_time - start_time} seconds")
         return result
     return wrapper
-
 
 def get_last_page(url) -> int:
     r = requests.get(url)
@@ -71,7 +57,6 @@ def crawl_information(url) -> list:
 
     return information
 
-
 @compute_time_run
 def crawl_data_from_page(url, file_path) -> None:
     r = requests.get(url)    
@@ -95,17 +80,19 @@ def crawl_data_from_page(url, file_path) -> None:
     
     with open(file_path, 'w', encoding='utf8') as json_file:
         json.dump(pages_data, json_file, ensure_ascii=False)
+    # pd.DataFrame(pages_data).T.to_csv(file_path)
 
 def crawl_estate(start, end):
     url = 'https://batdongsan.vn/ban-nha-ho-chi-minh'
     for i in range(start - 1, end):
         temp_url = url + f'/p{i+1}'
 
-        file_path = f'./dataset/page{i+1}.json'
+        file_path = f'./dataset/data/page{i+1}.json'
         crawl_data_from_page(temp_url, file_path)
         print(f'Page {i+1} is done!')
         print('-------------------------------------------------------------------------------------------------------')
     return
+
 if __name__ == '__main__':
     start_page = 1
     end_page = 2
