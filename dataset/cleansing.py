@@ -42,11 +42,11 @@ def extract_data_from_page(page):
             bathroom = extract_numbers(data)[0]
         
         # Lấy thông tin mã tin và ngày đăng
-        post_data = page[-2]
-        post_code = extract_numbers(post_data[0])[0]
-        post_dates = extract_date_times(post_data[1])
+    post_data = page[-2]
+    post_code = extract_numbers(post_data[0])[0]
+    post_dates = extract_date_times(post_data[1])
 
-        return url, title, district, price, square, bedroom, bathroom, post_code, post_dates
+    return url, title, district, price, square, bedroom, bathroom, post_code, post_dates
 
 
 def concat_data():
@@ -77,7 +77,7 @@ def concat_data():
 def export_csv(data):
     final_csv = pd.DataFrame(data)
     final_csv.reset_index(drop=True, inplace=True)
-    final_csv.to_csv("./dataset/final_data.csv")
+    final_csv.to_csv("./dataset/final_data.csv", encoding='utf-8-sig', index=False)
     return
 
 if __name__ == '__main__':
