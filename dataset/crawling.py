@@ -36,25 +36,31 @@ def crawl_information(url) -> list:
     information_container = soup.find('div', class_='uk-width-medium-3-5')
     panel = information_container.find_all('div', class_='uk-panel')
 
-    detail_info = []
+    post_info = []
+    estate_info = []
     # Đưa vào vòng lặp để lấy thông tin cần thiết
     for p in panel:
-    # lấy các thông tin còn lại
+        # Lấy thông tin giá
+        price = p.find('strong', class_='price')
+        if price:
+            estate_info.append(price.text.strip())
+        
+        # lấy các thông tin còn lại
         params = p.find_all('div', class_='param')
         if params:  # Check if divs is not empty
-            
             li_param1 = params[0].find_all('li')
             li_param2 = params[1].find_all('li') if len(params) > 1 else []
 
             # Nếu thông tin trống thì lưu là None
             for li in li_param1:
-                detail_info.append(li.text.strip())
+                estate_info.append(li.text.strip())
 
             for li in li_param2:
-                detail_info.insert(0, li.text.strip())
+                post_info.append(li.text.strip())
 
-    information.append(detail_info)
-
+    information.append(post_info)   
+    information.append(estate_info)
+    
     return information
 
 @compute_time_run
@@ -67,7 +73,7 @@ def crawl_data_from_page(url, file_path) -> None:
     pages_data = dict()
     i = 0
     for item in items:
-        temp_url = item.a['href'] # url của bài đăng
+        temp_url = item.a['href'] # url của các bài đăng
         title = item.a.text
         information = crawl_information(temp_url)
         information.insert(0, title)
@@ -77,13 +83,11 @@ def crawl_data_from_page(url, file_path) -> None:
         i += 1
 
     # Export to JSON
-    
     with open(file_path, 'w', encoding='utf8') as json_file:
         json.dump(pages_data, json_file, ensure_ascii=False)
     # pd.DataFrame(pages_data).T.to_csv(file_path)
 
-def crawl_estate(start, end):
-    url = 'https://batdongsan.vn/ban-nha-ho-chi-minh'
+def crawl_estate(url, start, end):
     for i in range(start - 1, end):
         temp_url = url + f'/p{i+1}'
 
@@ -94,7 +98,8 @@ def crawl_estate(start, end):
     return
 
 if __name__ == '__main__':
+    url = 'https://batdongsan.vn/ban-nha-ho-chi-minh'
     start_page = 1
-    end_page = 2
-    crawl_estate(start_page, end_page)
+    end_page = get_last_page(url)
+    crawl_estate(url, start_page, end_page)
     print('Done!')
