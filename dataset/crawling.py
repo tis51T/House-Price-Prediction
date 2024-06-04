@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import requests, json, time
-import pandas as pd
 
 def compute_time_run(func):
     def wrapper(*args, **kwargs):
@@ -23,14 +22,19 @@ def crawl_information(url) -> list:
     soup = BeautifulSoup(r.content, 'html5lib')
     information = []
 
-    # Container chứa quận huyện
-    try:
-        district_container = soup.find('ul', class_='uk-breadcrumb')
-        li_elements = district_container.find_all('li')
-        last_li = li_elements[-1] if li_elements else None
-        information.append(last_li.text)
-    except:
-        information.append('None')
+    # Nội dung bài đăng
+    content_container = soup.find('div', class_='project-global-object-block-003 block-custom')
+    content = content_container.find('div', class_='content')
+    information.append(content.text.strip())
+
+    # Thông tin quận huyện và loại nhà ở
+    district_container = soup.find('ul', class_='uk-breadcrumb')
+    li_elements = district_container.find_all('li')
+    type_li = li_elements[1] if li_elements else None
+    information.append(type_li.text)
+    district_li = li_elements[-1] if li_elements else None
+    information.append(district_li.text)
+    
 
     # Container chứa thông tin giá tiền, diện tích, số phòng ngủ, số phòng tắm
     information_container = soup.find('div', class_='uk-width-medium-3-5')
@@ -43,7 +47,7 @@ def crawl_information(url) -> list:
         # Lấy thông tin giá
         price = p.find('strong', class_='price')
         if price:
-            estate_info.append(price.text.strip())
+            information.append(price.text.strip())
         
         # lấy các thông tin còn lại
         params = p.find_all('div', class_='param')
@@ -100,6 +104,6 @@ def crawl_estate(url, start, end):
 if __name__ == '__main__':
     url = 'https://batdongsan.vn/ban-nha-ho-chi-minh'
     start_page = 1
-    end_page = get_last_page(url)
+    end_page = 100
     crawl_estate(url, start_page, end_page)
     print('Done!')
