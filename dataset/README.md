@@ -1,0 +1,3 @@
+Ở phần này, ta sẽ lấy dữ liệu từ trang web và lưu nó vào .csv. Khu vực cần lấy sẽ là TPHCM và loại bất động sản chính là nhà ở.
+- `crawling.py`: File này dùng để cào dữ liệu. Vì data khá nhiều và thao tác lấy và tích hợp lại trong 1 file .csv khá là lâu, nên khi cào được dữ liệu từ 1 trang bất động sản, ta sẽ lưu dữ liệu lại vào .json trước
+- `concatenating.py`: File được dùng để nối các file .json lại và xuất ra .csv. Có 2 file .csv: 1 là data cào được từ bài đăng, ở phần thông tin bất động sản; 2 là data được trích xuất từ tiêu đề và nội dung bài đăng nhằm mục đích "dự trữ" cho data chính nếu như ở phần đó bị trống.
