@@ -95,8 +95,7 @@ def concat_data():
 
 def extract_extra_info(texts):
     hurried = []; rent = []; price = []; square = []; bedrooms = []; bathrooms = []; 
-    balcony = []; house_direction = []; legal_info = []; furniture = []
-
+    balcony = []; house_direction = []; legal_info = []; furniture = []; floors = []; basements = []
     for text in texts:
         text = text.lower()
 
@@ -117,7 +116,7 @@ def extract_extra_info(texts):
             price.append(None)
 
         # Extracting square
-        square_pattern = r'(\d+(\.\d+)?|\d+(\,\d+)?)(m2| m2)'
+        square_pattern = r'(\d+(\.\d+)?|\d+(\,\d+)?)(m2| m2|m vuông)'
         square_match = re.search(square_pattern, text)
         if square_match:
             squares = square_match.group(1).replace(',', '.')  # Replace comma with dot
@@ -157,6 +156,23 @@ def extract_extra_info(texts):
         is_hurried = bool(re.search(hurried_pattern, text))
         hurried.append(is_hurried)
 
+        # Lấy số tầng
+        floor_match = re.search(r'(\d+) (tầng|lầu)', text)
+        floor = int(floor_match.group(1)) if floor_match else 0
+        sub_floor_match = re.search(r'lửng', text)
+        sub_floor = 1 if sub_floor_match else 0
+        ground_match = re.search(r'trệt', text)
+        ground = 1 if ground_match else 0
+        rooftop_match =  re.search(r'(sân thượng|tầng thượng)', text)
+        rooftop = 1 if rooftop_match else 0
+
+        floor_count = floor + ground + sub_floor + rooftop        
+        floors.append(floor_count)
+
+        # Kiểm tra có hầm hay không
+        basement_pattern = r'hầm'
+        basements.append(bool(re.search(basement_pattern, text)))
+
     extra_info ={
         'rent': rent,
         'price': price,
@@ -167,7 +183,9 @@ def extract_extra_info(texts):
         'house_direction': house_direction,
         'legal_info': legal_info,
         'furniture': furniture,
-        'hurried': hurried
+        'hurried': hurried,
+        'floors': floors,
+        'basement': basements
     }
 
     return extra_info
