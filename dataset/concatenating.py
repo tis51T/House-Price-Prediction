@@ -108,7 +108,7 @@ def extract_extra_info(texts):
         
         rent.append(is_rent)
 
-        price_pattern = r'(\d+(\.\d+)?|\d+(\,\d+)?|\d+((tỷ|triệu|tỉ| tỷ | triệu | tỉ )\d+)?)(tỷ|.x tỷ| tỷ|triệu| triệu| tỉ|tỉ)'
+        price_pattern = r'giá\s*(?:bán)?\s*:?\s*(\d+(\.\d+)?|\d+(\,\d+)?|\d+((tỷ|triệu|tỉ|tr| tỷ | triệu | tỉ | tr)\d+)?)(tỷ|.x tỷ| tỷ|triệu| triệu| tỉ|tỉ)'
         price_match = re.search(price_pattern, text)
         if price_match:
             price.append(price_match.group(0))  # Append the original text
@@ -206,7 +206,7 @@ def export_csv(data):
     post_data.to_csv("./dataset/csv_data/post_data.csv", encoding='utf-8-sig', index=False)
     content_data.to_csv("./dataset/csv_data/content_data.csv", encoding='utf-8-sig', index=False)
     title_data.to_csv("./dataset/csv_data/title_data.csv", encoding='utf-8-sig', index=False)
-    
+
     return
 
 
